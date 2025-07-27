@@ -1,9 +1,16 @@
 from fastapi import FastAPI, Request
 from typing import Dict
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 db: Dict[str, str] = {}  # In-memory. Use Redis/SQLite for persistence.
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["https://your-frontend.com"] for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.post("/register")
 async def register(request: Request):
     data = await request.json()
