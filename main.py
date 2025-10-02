@@ -19,23 +19,25 @@ async def register(request: Request):
     Accepts JSON:
     {
         "device": "device_id",
-        "urls": {
-            "http": "https://ngrok1",
-            "ws": "https://ngrok2",
-            "api": "https://ngrok3"
-        }
+        "usecase": "http",
+        "url": "https://ngrok1"
     }
+    Can be called multiple times for the same device with different usecases.
     """
     data = await request.json()
     device = data.get("device")
-    urls = data.get("urls", {})
+    usecase = data.get("usecase")
+    url = data.get("url")
 
-    # Validate
-    if not device or not isinstance(urls, dict) or len(urls) == 0:
-        return {"status": "error", "message": "Device and urls dict required"}
+    if not device or not usecase or not url:
+        return {"status": "error", "message": "device, usecase, and url required"}
 
-    db[device] = urls
-    return {"status": "ok", "saved": {device: urls}}
+    # Merge or create
+    if device not in db:
+        db[device] = {}
+    db[device][usecase] = url
+
+    return {"status": "ok", "saved": {device: db[device]}}
 
 @app.get("/get/{device}")
 def get_urls(device: str):
