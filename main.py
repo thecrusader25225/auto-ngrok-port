@@ -14,28 +14,16 @@ app.add_middleware(
 )
 
 @app.post("/register")
+@app.post("/register")
 async def register(request: Request):
-    """
-    Accepts JSON:
-    {
-        "device": "device_id",
-        "usecase": "http",
-        "url": "https://ngrok1"
-    }
-    Can be called multiple times for the same device with different usecases.
-    """
     data = await request.json()
     device = data.get("device")
     usecase = data.get("usecase")
     url = data.get("url")
-
-    if not device or not usecase or not url:
-        return {"status": "error", "message": "device, usecase, and url required"}
-
-    # Merge or create
+    
     if device not in db:
         db[device] = {}
-    db[device][usecase] = url
+    db[device][usecase] = url  # merge instead of replace
 
     return {"status": "ok", "saved": {device: db[device]}}
 
